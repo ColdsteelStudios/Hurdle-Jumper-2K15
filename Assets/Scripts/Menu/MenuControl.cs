@@ -35,7 +35,7 @@ public class MenuControl : MonoBehaviour
     public void TriggerPlayButton()
     {
         if (MenuInteractable)
-            Application.LoadLevel("Game");
+            Application.LoadLevel("CharacterSelect");
     }
 
     public void TriggerQuitButton()

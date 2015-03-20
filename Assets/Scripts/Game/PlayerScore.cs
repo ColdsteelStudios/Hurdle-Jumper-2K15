@@ -29,49 +29,58 @@ public class PlayerScore : MonoBehaviour
     private int m_currentHighscore = 0;
     private bool m_highscoreBeaten = false;
 
-    void Start()
+    //Stop doing things too early
+    bool gameEnded = false;
+    private bool m_havePlayer = false;
+
+    public void SetPlayer(GameObject a_playerCharacter)
     {
+        m_playerTarget = a_playerCharacter;
         //Get the players original position
         m_originalPosition = m_playerTarget.transform.position;
         //Load the current highscore if it exists
         if (PlayerPrefs.HasKey("Score"))
             m_currentHighscore = PlayerPrefs.GetInt("Score");
+        m_havePlayer = true;
     }
 
     void Update()
     {
-        //Calculate and display players score
-        m_playerScore = Vector3.Distance(m_originalPosition, m_playerTarget.transform.position);
-        DisplayScore((int)m_playerScore);
-
-        //If the player hasnt beaten their highscore yet this run, and there exists a
-        //high score to beat, check for when the player beats it and play a particle effect
-        //when that happens
-        if(!m_highscoreBeaten && m_currentHighscore != 0 && (int)m_playerScore > m_currentHighscore)
+        if(m_havePlayer)
         {
-            m_highscoreBeaten = true;
-            m_playerTarget.transform.FindChild("ConfettiParticle").GetComponent<ParticleSystem>().Emit(10);
-        }
+            //Calculate and display players score
+            m_playerScore = Vector3.Distance(m_originalPosition, m_playerTarget.transform.position);
+            DisplayScore((int)m_playerScore);
 
-        //If the game has started and the players score hasnt changed in the last second
-        //then the game is over
-        if(m_gameStarted)
-        {
-            if (m_previousScore == (int)m_playerScore)
+            //If the player hasnt beaten their highscore yet this run, and there exists a
+            //high score to beat, check for when the player beats it and play a particle effect
+            //when that happens
+            if (!m_highscoreBeaten && m_currentHighscore != 0 && (int)m_playerScore > m_currentHighscore)
             {
-                m_deathTimer += Time.deltaTime;
-                if(m_deathTimer >= 0.25f)
-                {
-                    GameOver();
-                }
+                m_highscoreBeaten = true;
+                m_playerTarget.transform.FindChild("ConfettiParticle").GetComponent<ParticleSystem>().Emit(10);
             }
-            else
-                m_deathTimer = 0.0f;
 
-            m_previousScore = (int)m_playerScore;
+            //If the game has started and the players score hasnt changed in the last second
+            //then the game is over
+            if (m_gameStarted)
+            {
+                if (m_previousScore == (int)m_playerScore)
+                {
+                    m_deathTimer += Time.deltaTime;
+                    if (m_deathTimer >= 0.25f)
+                    {
+                        GameOver();
+                    }
+                }
+                else
+                    m_deathTimer = 0.0f;
+
+                m_previousScore = (int)m_playerScore;
+            }
         }
     }
-    bool gameEnded = false;
+    
     private void GameOver()
     {
         if (gameEnded)
